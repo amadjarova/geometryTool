@@ -1,9 +1,24 @@
+/**
+*
+* Solution to course project # 3
+* Introduction to programming course
+* Faculty of Mathematics and Informatics of Sofia University
+* Winter semester 2022/2023
+*
+* @author Anastasia Madzharova
+* @idnumber 0MI0600156
+* @compiler GCC
+*
+* main file
+*
+*/
 
 #include <iostream>
 #include <cmath>
 #include <stdlib.h>
 double const EPSILON = 0.0001;
 unsigned int const NAMESIZE = 333;
+
 double myFAbs(double num)
 {
     if (num < 0.0000) {
@@ -11,16 +26,18 @@ double myFAbs(double num)
     }
     return num;
 }
-void swap(int& num1, int& num2)
+
+void mySwap(int& num1, int& num2)
 {
     double temp = num1;
     num1 = num2;
     num2 = temp;
 }
+
 double gcd(int& num1, int& num2)
 {
     if (num1 < num2) {
-        swap(num1, num2);
+        mySwap(num1, num2);
     }
     while (num2!=0) {
         int mod = num1%num2;
@@ -29,6 +46,7 @@ double gcd(int& num1, int& num2)
     }
     return num1;
 }
+
 void fixCoefficients(double& slCoeff, double& yIntercept, double& thirdCoeff)
 {
     if (slCoeff < 0) {
@@ -47,6 +65,7 @@ void fixCoefficients(double& slCoeff, double& yIntercept, double& thirdCoeff)
         thirdCoeff /= gcdAll;
     }
 }
+
 void checkInput(double& num)
 {
     while (true) {
@@ -255,108 +274,65 @@ void tangentToParabolaFromPoint(double a, double b, double c, double x1, double 
 {
     double discriminant = a * a * x1 * x1 + a * b * x1 + c;
     double sqrtDiscriminant = sqrt(discriminant);
-    double tanPoint1X = (a * x1 - sqrtDiscriminant) / a;//
-    double tanPoint1Y = -2.0 * x1 * ( sqrtDiscriminant -b) - b * sqrtDiscriminant / a + 2.0 * a * x1 * x1+2.0*c;//
-    double tanPoint2X = (sqrtDiscriminant + a * x1) / a;//
+    double tanPoint1X = (a * x1 - sqrtDiscriminant) / a;
+    double tanPoint1Y = -2.0 * x1 * ( sqrtDiscriminant -b) - b * sqrtDiscriminant / a + 2.0 * a * x1 * x1+2.0*c;
+    double tanPoint2X = (sqrtDiscriminant + a * x1) / a;
     double tanPoint2Y = 2.0 * x1 * (sqrtDiscriminant + b) + b * sqrtDiscriminant / a + 2.0 * a * x1 * x1 + 2.0 * c;
     if (myFAbs(a * x1 * x1 + b * x1 + c) < EPSILON) {
         tangentToParabolaAtPoint(x1, y1, a, b, c, slope1, yIntercept1, thirdCoeff1);
         linesCount = 1;
     }
     else {
-        equationOfALineGivenByTwoPoints(x1, y1, tanPoint1X, tanPoint1Y, slope1, yIntercept1, thirdCoeff1);
-        equationOfALineGivenByTwoPoints(x1, y1, tanPoint2X, tanPoint2Y, slope2, yIntercept2, thirdCoeff2);
+        slope1 = 2.0 * a * tanPoint1X + b;
+        thirdCoeff1 = tanPoint1Y - tanPoint1X * slope1;
+        yIntercept1 = -1;
+        slope2 = 2.0 * a * tanPoint2X + b;
+        thirdCoeff2 = tanPoint2Y - tanPoint2X * slope2;
+        yIntercept2 = -1;
         linesCount = 2;
     }
 }
 
-void intersectionCheck(double* linesCoefficients, double* linesIntersectionPoints, bool* intersections, unsigned int numLine1, unsigned int numLine2, unsigned int& line1IntersectionPoints, unsigned int& line2IntersectionPoints, bool& linesMatch, bool& noIntersection,unsigned int boolIndex, unsigned int intersPointIndex)
+void intersectionCheck(const double* linesCoefficients, double* linesIntersectionPoints, bool* intersections, unsigned int numLine1, unsigned int numLine2, unsigned int& line1IntersectionPoints, unsigned int& line2IntersectionPoints, bool& linesMatch, bool noIntersection, unsigned int boolIndex, unsigned int intersPointIndex)
 {
     unsigned int line1StartCoeff = numLine1 * 3 - 3;
     unsigned int line2StartCoeff = numLine2 * 3 - 3;
-    //intersectionOfTwoLines(linesCoefficients[line1StartCoeff], linesCoefficients[line1StartCoeff + 1], linesCoefficients[line1StartCoeff + 2], linesCoefficients[line2StartCoeff], linesCoefficients[line2StartCoeff + 1], linesCoefficients[line2StartCoeff + 2], noIntersection, linesMatch,);
-}
-
-/*void f(double slCoeff1, double yIntercept1, double thirdCoeff1, double slCoeff2, double yIntercept2, double thirdCoeff2, bool& noIntersection, bool& linesMatch, double& pointX, double& pointY,
-    bool& currentIntersection, int& lineIntersectionPoints, int& lineIntersectionPoints2)
-{
-    intersectionOfTwoLines(linesCoefficients[0], linesCoefficients[1], linesCoefficients[2], linesCoefficients[3], linesCoefficients[4], linesCoefficients[5], noIntersection, linesMatch, linesIntersectionPoints[0], linesIntersectionPoints[1]);
-    if (linesMatch) {
-        return false;
-    }
+    intersectionOfTwoLines(linesCoefficients[line1StartCoeff], linesCoefficients[line1StartCoeff + 1], linesCoefficients[line1StartCoeff + 2], linesCoefficients[line2StartCoeff], linesCoefficients[line2StartCoeff + 1], linesCoefficients[line2StartCoeff + 2], noIntersection, linesMatch, linesIntersectionPoints[intersPointIndex], linesIntersectionPoints[intersPointIndex + 1]);
     if (!noIntersection) {
-        currentIntersection = true;
-        bool& currentIntersection, int& lineIntersectionPoints, int& lineIntersectionPoints2)
-        ++;
+        intersections[boolIndex] = true;
+        line1IntersectionPoints++;
         line2IntersectionPoints++;
     }
-    noIntersection = false;
-}*/
+}
 
 bool isQuadrilateral(const double* linesCoefficients, double* linesIntersectionPoints, bool* intersections, unsigned int& line1IntersectionPoints, unsigned int& line2IntersectionPoints, unsigned int& line3IntersectionPoints, unsigned int& line4IntersectionPoints)
 {
     bool noIntersection = false;
     bool linesMatch = false;
-    intersectionOfTwoLines(linesCoefficients[0], linesCoefficients[1], linesCoefficients[2], linesCoefficients[3], linesCoefficients[4], linesCoefficients[5], noIntersection, linesMatch, linesIntersectionPoints[0], linesIntersectionPoints[1]);
+    intersectionCheck(linesCoefficients, linesIntersectionPoints, intersections, 1, 2, line1IntersectionPoints, line2IntersectionPoints, linesMatch, noIntersection, 0, 0);
     if (linesMatch) {
         return false;
     }
-    if (!noIntersection) {
-        intersections[0] = true;
-        line1IntersectionPoints++;
-        line2IntersectionPoints++;
-    }
-    noIntersection = false;
-    intersectionOfTwoLines(linesCoefficients[0], linesCoefficients[1], linesCoefficients[2], linesCoefficients[6], linesCoefficients[7], linesCoefficients[8], noIntersection, linesMatch, linesIntersectionPoints[2], linesIntersectionPoints[3]);
+    intersectionCheck(linesCoefficients, linesIntersectionPoints, intersections, 1, 3, line1IntersectionPoints, line3IntersectionPoints, linesMatch, noIntersection, 1, 2);
     if (linesMatch) {
         return false;
     }
-    if (!noIntersection) {
-        intersections[1] = true;
-        line1IntersectionPoints++;
-        line3IntersectionPoints++;
-    }
-    noIntersection = false;
-    intersectionOfTwoLines(linesCoefficients[0], linesCoefficients[1], linesCoefficients[2], linesCoefficients[9], linesCoefficients[10], linesCoefficients[11], noIntersection, linesMatch, linesIntersectionPoints[4], linesIntersectionPoints[5]);
+    intersectionCheck(linesCoefficients, linesIntersectionPoints, intersections, 1, 4, line1IntersectionPoints, line4IntersectionPoints, linesMatch, noIntersection, 2, 4);
     if (linesMatch) {
         return false;
     }
-    if (!noIntersection) {
-        intersections[2] = true;
-        line1IntersectionPoints++;
-        line4IntersectionPoints++;
-    }
-    noIntersection = false;
-    intersectionOfTwoLines(linesCoefficients[3], linesCoefficients[4], linesCoefficients[5], linesCoefficients[6], linesCoefficients[7], linesCoefficients[8], noIntersection, linesMatch, linesIntersectionPoints[6], linesIntersectionPoints[7]);
+    intersectionCheck(linesCoefficients, linesIntersectionPoints, intersections, 2, 3, line2IntersectionPoints, line3IntersectionPoints, linesMatch, noIntersection, 3, 6);
     if (linesMatch) {
         return false;
     }
-    if (!noIntersection) {
-        intersections[3] = true;
-        line2IntersectionPoints++;
-        line3IntersectionPoints++;
-    }
-    noIntersection = false;
-    intersectionOfTwoLines(linesCoefficients[3], linesCoefficients[4], linesCoefficients[5], linesCoefficients[9], linesCoefficients[10], linesCoefficients[11], noIntersection, linesMatch, linesIntersectionPoints[8], linesIntersectionPoints[9]);
+    intersectionCheck(linesCoefficients, linesIntersectionPoints, intersections, 2, 4, line2IntersectionPoints, line4IntersectionPoints, linesMatch, noIntersection, 4, 8);
     if (linesMatch) {
         return false;
     }
-    if (!noIntersection) {
-        intersections[4] = true;
-        line2IntersectionPoints++;
-        line4IntersectionPoints++;
-    }
-    noIntersection = false;
-    intersectionOfTwoLines(linesCoefficients[6], linesCoefficients[7], linesCoefficients[8], linesCoefficients[9], linesCoefficients[10], linesCoefficients[11], noIntersection, linesMatch, linesIntersectionPoints[2], linesIntersectionPoints[3]);
+    intersectionCheck(linesCoefficients, linesIntersectionPoints, intersections, 3, 4, line3IntersectionPoints, line4IntersectionPoints, linesMatch, noIntersection, 5, 10);
     if (linesMatch) {
         return false;
     }
-    if (!noIntersection) {
-        intersections[5] = true;
-        line4IntersectionPoints++;
-        line3IntersectionPoints++;
-    }
-    noIntersection = false;
     if (line1IntersectionPoints < 2 || line2IntersectionPoints < 2 || line3IntersectionPoints < 2 || line4IntersectionPoints < 2) {
         return false;
     }
@@ -380,23 +356,14 @@ bool areLinesPerpendicular(double slCoeff1, double yIntr1, double slCoeff2, doub
 {
     if (myFAbs(slCoeff1) > EPSILON) {
         if (myFAbs(slCoeff2) > EPSILON) {
-            if (myFAbs(slCoeff1+slCoeff2) < EPSILON) {
-                return true;
-            }
-                return false;
+            return myFAbs(slCoeff1 + slCoeff2) < EPSILON;
         }
         else {
-            if (myFAbs(yIntr1) < EPSILON) {
-                return true;
-            }
-                return false;
+            return myFAbs(yIntr1) < EPSILON;
         }
     }
     else {
-        if (myFAbs(yIntr2) < EPSILON) {
-            return true;
-        }
-        return false;
+        return myFAbs(yIntr2) < EPSILON;
     }
 }
 
@@ -567,49 +534,29 @@ void defineAPoint(char* name, double& x, double& y)
     std::cout << "y = ";
     checkInput(y);
     std::cout << std::endl;
-    std::cout << "Do you want to enter a name for your point? yes/no" << std::endl;
+    std::cout << "Do you want to enter a name for your point? yes/no " << std::endl;
      char answer[12] = "an";
      char answerYes[4] = "yes";
      char answerNo[3] = "no";
-    while (answer != "yes" && answer != "no") {
-        std::cin >> answer;
-        if (areStringsEqual(answer,answerYes)) {
-            nameOfAlineOrPoint(name);
-        }
-        else if (areStringsEqual(answer,answerNo)) {
-            break;
-        }
-        else {
-            std::cout << "Please enter valid answer: yes/no";
-        }
-    }
+     while (!areStringsEqual(answer, answerYes) && !areStringsEqual(answer, answerNo)) {
+         std::cin >> answer;
+         if (areStringsEqual(answer, answerYes)) {
+             nameOfAlineOrPoint(name);
+         }
+         else if (areStringsEqual(answer, answerNo)) {
+             break;
+         }
+         else {
+             std::cout << "Please enter valid answer: yes/no";
+         }
+     }
 }
-/*void printALine(double slopeCoeff, double yIntercept, double constant)
-{
-    fixCoefficients(slopeCoeff, yIntercept, constant);
-    if (myFAbs(slopeCoeff) > EPSILON) {
-        if (myFAbs(slopeCoeff + 1) < EPSILON) {
-            std::cout << "x ";
-        }
-        else {
-            std::cout << slopeCoeff << "x ";
-        }
-    }
-    if(myFAbs(yIntercept) > EPSILON) {
-        if (myFAbs(yIntercept + 1) < EPSILON || myFAbs(yIntercept - 1) < EPSILON) {
-            std::cout << "y ";
-        }
-        else {
-            std::cout << slopeCoeff << "x ";
-        }
-    }
 
-}*/
 void printALine(double slopeCoeff, double yIntercept, double constant)
 {
     fixCoefficients(slopeCoeff, yIntercept, constant);
     if (myFAbs(slopeCoeff) < EPSILON) {
-        if (myFAbs(constant) > EPSILON) {
+        if (constant > 0) {
             std::cout << yIntercept << "y + " << constant << " = 0." << std::endl;
         }
         else if (constant < EPSILON) {
@@ -949,13 +896,9 @@ void printMessageChoice8()
     }
 }
 
-void clearInputBuffer() {
-    // because of using both getline and cin we have to cin.ignore;
-    // cin leaves the newline character in the stream which will be read as input from the getline
-
-    std::cin.clear();	// clears errors flags from the cin
-    std::cin.sync();		// discard unread characters from the input buffer
-    std::cin.ignore();	// discard characters from the input buffer
+void clearConsole() {
+    std::cout << "\033[;H"; // Moves cursor to the top left
+    std::cout << "\033[J"; // Clears the console
 }
 void printChoices( unsigned int choice)
 {
@@ -985,7 +928,7 @@ int main()
     char no[3] = "no";
     while (areStringsEqual(answer, yes))
     {
-        std::cout << "Hello! What would be useful to you? \n1) Defining lines by their coefficients and points by their coordinates;" <<
+        std::cout << "Hello! What would be useful to you? \n"<<
             "1) Check whether a point is on a line;\n" <<
             "2) From a line g and point p, derive an equation of a line that is parallel to g and passes through p; \n" <<
             "3) Given a line g and a point p lying on it, derive an equation of a line perpendicular to g with a fifth at p \n" <<
@@ -1000,10 +943,11 @@ int main()
         std::cout << "Do you want to run the program again? yes/no"<<std::endl;
         std::cin >> answer;
         choice = 10;
-        //clrscr();
         while (!(areStringsEqual(yes, answer) || areStringsEqual(no, answer)) ){
             std::cout << "Invalid answer. Please enter your answer again. yes/no";
+            std::cin >> answer;
         }
+        clearConsole();
     }
 }
 
